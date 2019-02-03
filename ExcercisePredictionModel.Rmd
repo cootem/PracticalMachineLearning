@@ -1,0 +1,28 @@
+---
+title: "Excercise Prediction Model"
+author: "Michael Coote"
+date: "2/3/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Data
+
+The training data for this project are available here:
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
+The test data are available here:
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+```{r load}
+pml.train <- 
+  read.csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv")
+pml.test <- 
+  read.csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv")
+
+```

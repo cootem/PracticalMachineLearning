@@ -1,4 +1,4 @@
-# Practical Machine Learning
+# Data Science Specialization
 
 Johns Hopkins University course in Machine Learning as part of the 
 Data Scient Specialization through Coursera
@@ -21,4 +21,9 @@ the other variables to predict with. You should create a report describing how
 you built your model, how you used cross validation, what you think the expected
 out of sample error is, and why you made the choices you did. You will also use
 your prediction model to predict 20 different test cases.
+
+## Project Report
+
+The project was completed in R Markdown. It is saved on GitHub Pages at 
+[ExcercisePredictionModel.html](ExcercisePredictionModel.html)
 
