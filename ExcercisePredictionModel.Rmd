@@ -6,23 +6,70 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(kableExtra)
 ```
 
-## Load Data
+## Load and Clean Data
 
-The training data for this project are available here:
-
+From the Human Activity Recognition (HAR) research the Weight Lifting Excercises
+(WLE) dataset was used
+1.  The training data: 
 https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
 
-The test data are available here:
-
+1.  The test data:
 https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
 
-```{r load}
+```{r load, cache=TRUE, results = "hide", echo = TRUE }
+file.train <- 
+  "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+file.test <- 
+  "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+# check file to see if it is truly a csv
+readLines(file.train, n = 2)
 pml.train <- 
-  read.csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv")
+  read.csv(file.train, na.strings = c("NA", "#DIV/0!"))
 pml.test <- 
-  read.csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv")
+  read.csv(file.test, na.strings = c("NA", "#DIV/0!"))
+```
+
+## Explore and Clean Data
+
+```{r explore}
+pml.train <- as_tibble(pml.train)
+pml.test <- as_tibble(pml.test)
+```
+
+* The train dataset has `r ncol(pml.train)` variables with `r nrow(pml.train)`
+observations
+* The test dataset has `r ncol(pml.test)` variables with `r nrow(pml.test)`
+observations
+
+Only variables related to the belt, forearm, arm, and dumbell are to be used. 
+The "classe" variable shows the outcomes; such that, class A corresponds to a 
+correct execution of the exercise, and the remaining five classes identify 
+common mistakes in this weight lifting exercise.
+
+```{r explore2}
+pml.train.cln <- pml.train %>% 
+  select(matches("belt|forearm|arm|dumbell"), classe)
+pml.test.cln <- pml.test %>%   
+  select(matches("belt|forearm|arm|dumbell"))
+```
+
+### Counts
+Counts of each class: `r table(pml.train$classe)` (A - E, respectively)
+
+### Sparse Data
+
+Sparsely populated variables are removed from the set.
+
+```{r explore3}
+# find variables with many NA observations
+r <- nrow(pml.train.cln)
+pml.train.cln %>% select_if(~mean(is.na(.) < 0.1)) %>% names()
 
 ```
+
+

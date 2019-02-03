@@ -376,16 +376,31 @@ $(document).ready(function () {
 </div>
 
 
-<div id="load-data" class="section level2">
-<h2>Load Data</h2>
-<p>The training data for this project are available here:</p>
-<p><a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv</a></p>
-<p>The test data are available here:</p>
-<p><a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a></p>
-<pre class="r"><code>pml.train &lt;- 
-  read.csv(&quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;)
+<div id="load-and-clean-data" class="section level2">
+<h2>Load and Clean Data</h2>
+<p>From the Human Activity Recognition (HAR) research the Weight Lifting Excercises (WLE) dataset was used 1. The training data: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv</a></p>
+<ol style="list-style-type: decimal">
+<li>The test data: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a></li>
+</ol>
+<pre class="r"><code>file.train &lt;- 
+  &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;
+file.test &lt;- 
+  &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;
+# check file to see if it is truly a csv
+readLines(file.train, n = 2)
+pml.train &lt;- 
+  read.csv(file.train, na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;))
 pml.test &lt;- 
-  read.csv(&quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;)</code></pre>
+  read.csv(file.test, na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;))</code></pre>
+</div>
+<div id="explore-and-clean-data" class="section level2">
+<h2>Explore and Clean Data</h2>
+<ul>
+<li>The train dataset has 160 variables with 19622 observations</li>
+<li>The test dataset has 160 variables with 20 observations</li>
+</ul>
+<p>Only variables related to the belt, forearm, arm, and dumbell are to be used. The “classe” variable shows the outcomes; such that, class A corresponds to a correct execution of the exercise, and the remaining five classes identify common mistakes in this weight lifting exercise.</p>
+<p>Counts of each class 5580, 3797, 3422, 3216, 3607</p>
 </div>
 
 
