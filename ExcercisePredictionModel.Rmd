@@ -1,5 +1,5 @@
 ---
-title: "Excercise Prediction Model"
+title: "Exercise Prediction Model"
 author: "Michael Coote"
 date: "2/3/2019"
 output: html_document
@@ -9,11 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(kableExtra)
+library(caret)
+library(rpart)
+library(rattle)
 ```
 
 ## Load and Clean Data
 
-From the Human Activity Recognition (HAR) research the Weight Lifting Excercises
+From the Human Activity Recognition (HAR) research the Weight Lifting Exercises
 (WLE) dataset was used
 1.  The training data: 
 https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
@@ -22,54 +25,152 @@ https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
 https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
 
 ```{r load, cache=TRUE, results = "hide", echo = TRUE }
-file.train <- 
+file_train <- 
   "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
-file.test <- 
+file_test <- 
   "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
 # check file to see if it is truly a csv
-readLines(file.train, n = 2)
-pml.train <- 
-  read.csv(file.train, na.strings = c("NA", "#DIV/0!"))
-pml.test <- 
-  read.csv(file.test, na.strings = c("NA", "#DIV/0!"))
+readLines(file_train, n = 2)
+pml_train <- 
+  read.csv(file_train, na.strings = c("NA", "#DIV/0!"))
+pml_test <- 
+  read.csv(file_test, na.strings = c("NA", "#DIV/0!"))
 ```
 
 ## Explore and Clean Data
 
 ```{r explore}
-pml.train <- as_tibble(pml.train)
-pml.test <- as_tibble(pml.test)
+pml_train <- as_tibble(pml_train)
+pml_test <- as_tibble(pml_test)
 ```
 
-* The train dataset has `r ncol(pml.train)` variables with `r nrow(pml.train)`
+* The train dataset has `r ncol(pml_train)` variables with `r nrow(pml_train)`
 observations
-* The test dataset has `r ncol(pml.test)` variables with `r nrow(pml.test)`
+* The test dataset has `r ncol(pml_test)` variables with `r nrow(pml_test)`
 observations
 
-Only variables related to the belt, forearm, arm, and dumbell are to be used. 
+Only variables related to the belt, forearm, arm, and dumbbell are to be used. 
 The "classe" variable shows the outcomes; such that, class A corresponds to a 
 correct execution of the exercise, and the remaining five classes identify 
 common mistakes in this weight lifting exercise.
 
 ```{r explore2}
-pml.train.cln <- pml.train %>% 
-  select(matches("belt|forearm|arm|dumbell"), classe)
-pml.test.cln <- pml.test %>%   
-  select(matches("belt|forearm|arm|dumbell"))
+pml_train_cln <- pml_train %>% 
+  select(matches("belt|forearm|arm|dumbbell"), classe)
+pml_test_cln <- pml_test %>%   
+  select(matches("belt|forearm|arm|dumbbell"))
 ```
 
 ### Counts
-Counts of each class: `r table(pml.train$classe)` (A - E, respectively)
+Counts of each class: `r table(pml_train$classe)` (A - E, respectively)
 
-### Sparse Data
+### Remove Sparse Data
 
 Sparsely populated variables are removed from the set.
 
 ```{r explore3}
-# find variables with many NA observations
-r <- nrow(pml.train.cln)
-pml.train.cln %>% select_if(~mean(is.na(.) < 0.1)) %>% names()
+# omit variables with many NA observations
+r <- nrow(pml_train_cln)
+pml_train_cln <- pml_train_cln %>% select_if(~mean(is.na(.)) < 0.5)
+cols_pml <- names(pml_train_cln)[-(ncol(pml_train_cln))]
+pml_test_cln <- pml_test_cln %>% select(cols_pml)
+```
+
+## Split Training Set
+
+The training dataset is split for later model verification.
+
+```{r split}
+inTrain <- as.integer(createDataPartition(y = pml_train_cln$classe, 
+                               p = 0.75, list = FALSE))
+pml_train_cln_train <- pml_train_cln[inTrain,]
+pml_train_cln_test <- pml_train_cln[-inTrain,]
+```
+
+- `r nrow(pml_train_cln_train)` observations will be used for training the model
+- `r nrow(pml_train_cln_test)` observations will be used for testing the model
+
+## Decision Tree Model
+
+The model is creating using an rpart from the caret package decision tree.
+
+```{r model}
+set.seed(123)
+modelPML <- train(classe ~ ., method = "rpart", data = pml_train_cln_train)
+```
+
+Testing predictors determined using a Principal Component Analysis (PCA). The 
+model is then trained on the PCA using the same decision tree method.
+
+```{r modelPCA}
+preProcPML <- preProcess(pml_train_cln_train[, cols_pml], 
+                         method = "pca", thresh = 0.8)
+pml_train_cln_PCA <- predict(preProcPML, pml_train_cln_train)
+modelPML_PCA <- train(classe ~ ., method = "rpart", data = pml_train_cln_PCA)
+```
+
+### Model Verification
+
+View a plot of the models to ensure the decisions make sense.
+
+```{r modelView}
+fancyRpartPlot(modelPML$finalModel)
+fancyRpartPlot(modelPML_PCA$finalModel)
+```
+
+### In Sample Error
+
+Show a confussion matrix on a prediction of the training dataset
+
+```{r confussionMatrixTrain}
+trainPML_predict <- predict(modelPML, pml_train_cln_train)
+cm_train <- confusionMatrix(trainPML_predict, pml_train_cln_train$classe)
+
+trainPML_PCA_predict <- predict(modelPML_PCA, pml_train_cln_PCA)
+cm_train_pca <- confusionMatrix(trainPML_PCA_predict, pml_train_cln_PCA$classe)
+```
+
+The decision tree model has an overall accuracy of `r cm$overall["Accuracy"]`. 
+While the model using PCA has an overall accuracy of 
+`r cm_pca$overall["Accuracy"]`. Using PCA doesn't show any advantage.
+
+### Out of Sample Error
+
+```{r trainTest}
+trainPML_test_predict <- predict(modelPML, pml_train_cln_test)
+cm_train_test <- confusionMatrix(trainPML_test_predict, 
+                                 pml_train_cln_test$classe)
+```
+
+The cases in the training set which were reserved for testing confirm an 
+overall model accuracy of `r cm_train_test$overall["Accuracy"]`. However, the 
+cross tabulatiom of the results shows classe D can not be predicted.
+
+`r cm_train_test$table`
+
+### Train Prediction
+
+Perform predictions on the test set using the two models.
+
+```{r prediction}
+testPML_predict <- predict(modelPML, newdata = pml_test_cln)
 
 ```
 
+Use a confussion matrix to determine the in sample error
 
+```{r confustionMatrix}
+cm_test <- confusionMatrix(testPML_predict, testPML_predict)
+
+```
+
+## Random Forest Model
+
+Next, we will attempt to classify using a Random Forest Model, reducing the
+impact of strong predictors, which may be limiting our ability to predic classe
+D cases.
+
+```{r randomForest}
+
+
+```
