@@ -1,37 +1,24 @@
-## Welcome to GitHub Pages
+# Practical Machine Learning
 
-You can use the [editor on GitHub](https://github.com/cootem/PracticalMachineLearning/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Johns Hopkins University course in Machine Learning as part of the 
+Data Scient Specialization through Coursera
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+See the GitHub pages site at 
+[PracticalMachineLearning](https://cootem.github.io/PracticalMachineLearning/)
 
-### Markdown
+## Prediction Assignment Writeup
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+One thing that people regularly do is quantify how much of a particular 
+activity they do, but they rarely quantify how well they do it. In this project, 
+your goal will be to use data from accelerometers on the belt, forearm, arm, and
+dumbell of 6 participants.
 
-```markdown
-Syntax highlighted code block
+## Project Goal
 
-# Header 1
-## Header 2
-### Header 3
+The goal of your project is to predict the manner in which they did the
+exercise. This is the "classe" variable in the training set. You may use any of
+the other variables to predict with. You should create a report describing how
+you built your model, how you used cross validation, what you think the expected
+out of sample error is, and why you made the choices you did. You will also use
+your prediction model to predict 20 different test cases.
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/cootem/PracticalMachineLearning/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
