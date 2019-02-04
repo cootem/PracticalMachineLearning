@@ -241,15 +241,10 @@ testPML_predict_rf <- predict(modelPML_rf, newdata = pml_test_cln)
 testPML_predict_rf %>% t %>% kable %>% kable_styling(full_width = F)
 ```
 
-Use a confussion matrix to determine the in sample error
+Use a confussion matrix to illustrate the Classe assignments.
 
 ```{r confustionMatrixRF}
 cm_test_rf <- confusionMatrix(testPML_predict_rf, testPML_predict_rf)
-```
-
-The confusion matrix shows variables assignments. 
-
-```{r confustionMatrixRF2}
 cm_test_rf$table %>% kable %>% kable_styling(full_width = F)
 ```
 

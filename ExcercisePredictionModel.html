@@ -916,10 +916,9 @@ B
 </tr>
 </tbody>
 </table>
-<p>Use a confussion matrix to determine the in sample error</p>
-<pre class="r"><code>cm_test_rf &lt;- confusionMatrix(testPML_predict_rf, testPML_predict_rf)</code></pre>
-<p>The confusion matrix shows variables assignments.</p>
-<pre class="r"><code>cm_test_rf$table %&gt;% kable %&gt;% kable_styling(full_width = F)</code></pre>
+<p>Use a confussion matrix to illustrate the Classe assignments.</p>
+<pre class="r"><code>cm_test_rf &lt;- confusionMatrix(testPML_predict_rf, testPML_predict_rf)
+cm_test_rf$table %&gt;% kable %&gt;% kable_styling(full_width = F)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
