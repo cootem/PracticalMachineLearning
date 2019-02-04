@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 library(tidyverse)
 library(kableExtra)
 library(caret)
@@ -14,10 +14,16 @@ library(rpart)
 library(rattle)
 ```
 
+## Objective
+
+To model sensor data taken during weight lifting excercise to determine the 
+quality of the movement.
+
 ## Load and Clean Data
 
 From the Human Activity Recognition (HAR) research the Weight Lifting Exercises
 (WLE) dataset was used
+
 1.  The training data: 
 https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
 
@@ -38,6 +44,8 @@ pml_test <-
 ```
 
 ## Explore and Clean Data
+
+### Variables and Observations
 
 ```{r explore}
 pml_train <- as_tibble(pml_train)
@@ -61,12 +69,14 @@ pml_test_cln <- pml_test %>%
   select(matches("belt|forearm|arm|dumbbell"))
 ```
 
-### Counts
+### Outcome Counts
+
 Counts of each class: `r table(pml_train$classe)` (A - E, respectively)
 
 ### Remove Sparse Data
 
-Sparsely populated variables are removed from the set.
+Sparsely - greater than half the obsrvations - populated variables are removed 
+from the set.
 
 ```{r explore3}
 # omit variables with many NA observations
@@ -78,7 +88,8 @@ pml_test_cln <- pml_test_cln %>% select(cols_pml)
 
 ## Split Training Set
 
-The training dataset is split for later model verification.
+The training dataset (set with known outcomes) is split for later model 
+verification (25% test reserve).
 
 ```{r split}
 inTrain <- as.integer(createDataPartition(y = pml_train_cln$classe, 
@@ -92,21 +103,24 @@ pml_train_cln_test <- pml_train_cln[-inTrain,]
 
 ## Decision Tree Model
 
-The model is creating using an rpart from the caret package decision tree.
+The model is creating using an rpart decision tree method from the caret 
+package.
 
-```{r model}
+### Model Creation
+
+```{r model, cache=TRUE}
 set.seed(123)
-modelPML <- train(classe ~ ., method = "rpart", data = pml_train_cln_train)
+modelPML <- train(classe ~ ., data = pml_train_cln_train, method = "rpart")
 ```
 
 Testing predictors determined using a Principal Component Analysis (PCA). The 
 model is then trained on the PCA using the same decision tree method.
 
-```{r modelPCA}
+```{r modelPCA, cache=TRUE}
 preProcPML <- preProcess(pml_train_cln_train[, cols_pml], 
                          method = "pca", thresh = 0.8)
 pml_train_cln_PCA <- predict(preProcPML, pml_train_cln_train)
-modelPML_PCA <- train(classe ~ ., method = "rpart", data = pml_train_cln_PCA)
+modelPML_PCA <- train(classe ~ ., data = pml_train_cln_PCA, method = "rpart")
 ```
 
 ### Model Verification
@@ -130,9 +144,10 @@ trainPML_PCA_predict <- predict(modelPML_PCA, pml_train_cln_PCA)
 cm_train_pca <- confusionMatrix(trainPML_PCA_predict, pml_train_cln_PCA$classe)
 ```
 
-The decision tree model has an overall accuracy of `r cm$overall["Accuracy"]`. 
-While the model using PCA has an overall accuracy of 
-`r cm_pca$overall["Accuracy"]`. Using PCA doesn't show any advantage.
+The decision tree model has an overall accuracy of 
+`r cm_train$overall["Accuracy"]`. While the model using PCA has an overall 
+accuracy of `r cm_train_pca$overall["Accuracy"]`. Using PCA doesn't show any 
+advantage.
 
 ### Out of Sample Error
 
@@ -146,7 +161,9 @@ The cases in the training set which were reserved for testing confirm an
 overall model accuracy of `r cm_train_test$overall["Accuracy"]`. However, the 
 cross tabulatiom of the results shows classe D can not be predicted.
 
-`r cm_train_test$table`
+```{r trainTest2}
+cm_train_test$table %>% kable %>% kable_styling(full_width = F)
+```
 
 ### Train Prediction
 
@@ -154,23 +171,96 @@ Perform predictions on the test set using the two models.
 
 ```{r prediction}
 testPML_predict <- predict(modelPML, newdata = pml_test_cln)
-
 ```
 
 Use a confussion matrix to determine the in sample error
 
 ```{r confustionMatrix}
 cm_test <- confusionMatrix(testPML_predict, testPML_predict)
-
+cm_test$overall %>% kable %>% kable_styling(full_width = F)
 ```
 
 ## Random Forest Model
 
 Next, we will attempt to classify using a Random Forest Model, reducing the
 impact of strong predictors, which may be limiting our ability to predic classe
-D cases.
+D cases. It may also improve accuracy by producing multiple trees and votes for
+the best.
 
-```{r randomForest}
+### Model Creation
 
-
+```{r randomForest, cache=TRUE}
+modelPML_rf <- train(classe ~ ., data = pml_train_cln_train, method = "rf")
 ```
+
+### Model Verification
+
+The Random Forest Model showed excellent accuracy.
+
+```{r modelVerificationRF, comment=NA }
+modelPML_rf
+```
+
+### In Sample Error
+
+Show a confussion matrix on a prediction of the training dataset
+
+```{r confussionMatrixTrainRF}
+trainPML_predict_rf <- predict(modelPML_rf, pml_train_cln_train)
+cm_train_rf <- confusionMatrix(trainPML_predict_rf, pml_train_cln_train$classe)
+```
+
+The Random Forest model has an overall accuracy of 
+`r cm_train_rf$overall["Accuracy"]`, or perfect!
+
+### Out of Sample Error
+
+```{r trainTestRF}
+trainPML_test_predict_rf <- predict(modelPML_rf, pml_train_cln_test)
+cm_train_test_rf <- confusionMatrix(trainPML_test_predict_rf, 
+                                    pml_train_cln_test$classe)
+```
+
+The cases in the training set which were reserved for testing confirm an 
+overall model accuracy of `r cm_train_test_rf$overall["Accuracy"]`. 
+
+```{r trainTestRF2}
+cm_train_test_rf$table %>% kable %>% kable_styling(full_width = F)
+```
+
+Nearly all cases were modelled accurately, as specifics show in the cross-
+validated outcomes vs predictions. Classe E showed the larges deviations.
+
+### Train Prediction
+
+Perform predictions on the test set using the Random Forest model and display
+results for the 20 test cases.
+
+```{r predictionRF}
+testPML_predict_rf <- predict(modelPML_rf, newdata = pml_test_cln)
+```
+
+Use a confussion matrix to determine the in sample error
+
+```{r confustionMatrixRF}
+cm_test_rf <- confusionMatrix(testPML_predict_rf, testPML_predict_rf)
+```
+
+The confusion matrix shows variables assignments. 
+
+```{r confustionMatrixRF2}
+cm_test_rf$table %>% kable %>% kable_styling(full_width = F)
+```
+
+Note how all classes are represented.
+
+## Conclusions
+
+As can be seen from the in sample test, the Random Forest model is very
+accurate, `r cm_train_test_rf$overall["Accuracy"]`. However, it is processing
+intensive, took about 45 minutes to run on my i5 with 8Gb of RAM. Parallel
+processing could be useful. And, the underlying method could be difficult to
+communicate to the general population.
+
+-------------------------------------------------------------------------------
+
