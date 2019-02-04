@@ -619,69 +619,52 @@ E
 <pre class="r"><code>testPML_predict &lt;- predict(modelPML, newdata = pml_test_cln)</code></pre>
 <p>Use a confussion matrix to determine the in sample error</p>
 <pre class="r"><code>cm_test &lt;- confusionMatrix(testPML_predict, testPML_predict)
-cm_test$overall %&gt;% kable %&gt;% kable_styling(full_width = F)</code></pre>
+cm_test$overall %&gt;% t %&gt;% kable %&gt;% kable_styling(full_width = F)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:right;">
+Accuracy
 </th>
 <th style="text-align:right;">
-x
+Kappa
+</th>
+<th style="text-align:right;">
+AccuracyLower
+</th>
+<th style="text-align:right;">
+AccuracyUpper
+</th>
+<th style="text-align:right;">
+AccuracyNull
+</th>
+<th style="text-align:right;">
+AccuracyPValue
+</th>
+<th style="text-align:right;">
+McnemarPValue
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-Accuracy
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kappa
-</td>
-<td style="text-align:right;">
-1.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AccuracyLower
+1
 </td>
 <td style="text-align:right;">
 0.8315665
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AccuracyUpper
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
-1.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AccuracyNull
+0.55
 </td>
 <td style="text-align:right;">
-0.5500000
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AccuracyPValue
-</td>
-<td style="text-align:right;">
-0.0000064
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-McnemarPValue
+6.4e-06
 </td>
 <td style="text-align:right;">
 NaN

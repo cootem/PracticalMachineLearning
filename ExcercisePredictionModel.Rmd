@@ -177,7 +177,7 @@ Use a confussion matrix to determine the in sample error
 
 ```{r confustionMatrix}
 cm_test <- confusionMatrix(testPML_predict, testPML_predict)
-cm_test$overall %>% kable %>% kable_styling(full_width = F)
+cm_test$overall %>% t %>% kable %>% kable_styling(full_width = F)
 ```
 
 ## Random Forest Model
