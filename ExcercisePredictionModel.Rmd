@@ -238,6 +238,7 @@ results for the 20 test cases.
 
 ```{r predictionRF}
 testPML_predict_rf <- predict(modelPML_rf, newdata = pml_test_cln)
+testPML_predict_rf %>% t %>% kable %>% kable_styling(full_width = F)
 ```
 
 Use a confussion matrix to determine the in sample error

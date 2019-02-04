@@ -848,7 +848,74 @@ E
 <div id="train-prediction-1" class="section level3">
 <h3>Train Prediction</h3>
 <p>Perform predictions on the test set using the Random Forest model and display results for the 20 test cases.</p>
-<pre class="r"><code>testPML_predict_rf &lt;- predict(modelPML_rf, newdata = pml_test_cln)</code></pre>
+<pre class="r"><code>testPML_predict_rf &lt;- predict(modelPML_rf, newdata = pml_test_cln)
+testPML_predict_rf %&gt;% t %&gt;% kable %&gt;% kable_styling(full_width = F)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+E
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+E
+</td>
+<td style="text-align:left;">
+E
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+B
+</td>
+</tr>
+</tbody>
+</table>
 <p>Use a confussion matrix to determine the in sample error</p>
 <pre class="r"><code>cm_test_rf &lt;- confusionMatrix(testPML_predict_rf, testPML_predict_rf)</code></pre>
 <p>The confusion matrix shows variables assignments.</p>
